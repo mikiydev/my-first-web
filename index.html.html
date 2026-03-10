@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASTU University Class Helper System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --astu-gold: #D4AF37;
+            --astu-blue: #1E3A8A;
+            --astu-green: #10B981;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #D4AF37, #F59E0B);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+            transition: all 0.3s ease;
+        }
+        .btn-gold:hover {
+            box-shadow: 0 0 25px rgba(212, 175, 55, 0.7);
+            transform: translateY(-2px);
+        }
+
+        .btn-blue {
+            background: linear-gradient(135deg, #1E3A8A, #3B82F6);
+            box-shadow: 0 0 15px rgba(30, 58, 138, 0.4);
+            transition: all 0.3s ease;
+        }
+        .btn-blue:hover {
+            box-shadow: 0 0 25px rgba(30, 58, 138, 0.7);
+            transform: translateY(-2px);
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #10B981, #059669);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+            transition: all 0.3s ease;
+        }
+        .btn-green:hover {
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.7);
+            transform: translateY(-2px);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+        }
+
+        .page {
+            display: none;
+            min-height: 100vh;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .page.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .astu-logo {
+            width: 120px;
+            height: 120px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid var(--astu-gold);
+            margin: 0 auto;
+            color: var(--astu-blue);
+            font-weight: bold;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* File Upload Styling */
+        .file-upload-label {
+            border: 2px dashed #cbd5e1;
+            padding: 1rem;
+            display: block;
+            text-align: center;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .file-upload-label:hover {
+            border-color: var(--astu-blue);
+            background: #eff6ff;
+        }
+
+        /* Pulse Animation */
+        .pulse {
+            animation: pulse-animation 2s infinite;
+        }
+        @keyframes pulse-animation {
+            0% { transform: scale(0.95); }
+            70% { transform: scale(1); }
+            100% { transform: scale(0.95); }
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            color: #ccc;
+            cursor: pointer;
+        }
+        .modal-close:hover { color: #888; }
+        
+        /* Night Mode Styles */
+        body.dark-mode {
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        .dark-mode .glass-card {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f1f5f9;
+        }
+        .dark-mode .bg-white, .dark-mode .bg-gray-50, .dark-mode .bg-gray-100 {
+            background-color: #1e293b !important;
+            color: #f1f5f9;
+        }
+        .dark-mode input, .dark-mode textarea, .dark-mode select {
+            background-color: #334155;
+            border-color: #475569;
+            color: white;
+        }
+        .dark-mode .text-gray-800, .dark-mode .text-gray-700, .dark-mode .text-gray-600 {
+            color: #cbd5e1 !important;
+        }
+        /* Floating Toggle Button */
+        #night-mode-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 9999;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body onclick="hideNotifications(event)">
+<div id="night-mode-toggle" class="bg-gray-800 text-white" onclick="toggleNightMode()">
+        <i id="night-icon" class="fas fa-moon"></i>
+    </div>
+
+    <div id="welcome-page" class="page active items-center justify-center text-center bg-white">
+        <div class="astu-logo mb-6 pulse">ASTU</div>
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">Welcome to ASTU University</h1>
+        <p class="text-xl text-gray-600 mb-8">Welcoming Ceremony</p>
+        <button onclick="navigateTo('portal-selection')" class="btn-gold text-white px-10 py-3 rounded-full font-semibold text-lg">Next</button>
+    </div>
+
+    <div id="portal-selection" class="page items-center justify-center bg-gray-50">
+        <div class="flex items-center mb-4">
+            <i class="fas fa-arrow-left mr-4 text-gray-600 cursor-pointer text-2xl" onclick="navigateTo('welcome-page')"></i>
+            <div class="astu-logo mb-0">ASTU</div>
+        </div>
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center px-4">Class Helper System</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl px-4">
+            <button onclick="navigateTo('student-login')" class="btn-green text-white p-8 rounded-2xl flex flex-col items-center"><i class="fas fa-user-graduate text-4xl mb-4"></i><span class="text-xl font-bold">Student Portal</span></button>
+            <button onclick="navigateTo('teacher-login')" class="btn-blue text-white p-8 rounded-2xl flex flex-col items-center"><i class="fas fa-chalkboard-teacher text-4xl mb-4"></i><span class="text-xl font-bold">Teacher Portal</span></button>
+            <button onclick="navigateTo('admin-login')" class="btn-gold text-white p-8 rounded-2xl flex flex-col items-center"><i class="fas fa-user-shield text-4xl mb-4"></i><span class="text-xl font-bold">Admin Portal</span></button>
+        </div>
+    </div>
+
+    <div id="student-login" class="page items-center justify-center bg-gray-50">
+        <div class="glass-card p-8 w-full max-w-md shadow-xl relative">
+            <i class="fas fa-arrow-left absolute top-4 left-4 text-gray-600 cursor-pointer" onclick="navigateTo('portal-selection')"></i>
+            <h2 class="text-2xl font-bold text-center mb-6 mt-4">Student Login</h2>
+            <input type="text" id="stu-id-login" placeholder="Student ID" class="w-full p-3 border rounded-lg mb-4">
+            <input type="password" id="stu-pass-login" placeholder="Password" class="w-full p-3 border rounded-lg mb-4">
+            <button onclick="studentLogin()" class="w-full btn-green text-white py-3 rounded-lg font-bold">Login</button>
+            <p class="mt-4 text-center text-sm">New student? <a href="#" onclick="navigateTo('student-register')" class="text-green-600 font-bold">Register</a></p>
+        </div>
+    </div>
+
+    <div id="student-register" class="page items-center justify-center bg-gray-50">
+        <div class="glass-card p-8 w-full max-w-lg shadow-xl relative">
+            <i class="fas fa-arrow-left absolute top-4 left-4 text-gray-600 cursor-pointer" onclick="navigateTo('student-login')"></i>
+            <h2 class="text-2xl font-bold text-center mb-6 mt-4">Student Registration</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" id="reg-name" placeholder="Full Name" class="p-3 border rounded-lg">
+                <input type="text" id="reg-id" placeholder="Student ID" class="p-3 border rounded-lg">
+                <select id="reg-dept" class="p-3 border rounded-lg outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">Select Department</option>
+                    <option value="CSE">CSE (Computer Science)</option>
+                    <option value="SE">SE (Software Engineering)</option>
+                    <option value="ECE">ECE (Electrical & Computer)</option>
+                </select>
+                <select id="reg-section" class="p-3 border rounded-lg outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">Select Section</option>
+                    <option value="A">Section A</option>
+                    <option value="B">Section B</option>
+                </select>
+                <input type="password" id="reg-pass" placeholder="Password" class="p-3 border rounded-lg md:col-span-2">
+            </div>
+            <button onclick="studentRegister()" class="w-full btn-green text-white py-3 rounded-lg font-bold mt-6">Register</button>
+        </div>
+    </div>
+
+    <div id="teacher-login" class="page items-center justify-center bg-gray-50">
+        <div class="glass-card p-8 w-full max-w-md shadow-xl relative">
+            <i class="fas fa-arrow-left absolute top-4 left-4 text-gray-600 cursor-pointer" onclick="navigateTo('portal-selection')"></i>
+            <h2 class="text-2xl font-bold text-center mb-6 mt-4">Teacher Login</h2>
+            <input type="text" id="teacher-id-login" placeholder="Teacher ID" class="w-full p-3 border rounded-lg mb-4">
+            <input type="password" id="teacher-pass-login" placeholder="Password" class="w-full p-3 border rounded-lg mb-4">
+            <button onclick="teacherLogin()" class="w-full btn-blue text-white py-3 rounded-lg font-bold">Login</button>
+        </div>
+    </div>
+
+    <div id="admin-login" class="page items-center justify-center bg-gray-50">
+        <div class="glass-card p-8 w-full max-w-md shadow-xl relative">
+            <i class="fas fa-arrow-left absolute top-4 left-4 text-gray-600 cursor-pointer" onclick="navigateTo('portal-selection')"></i>
+            <h2 class="text-2xl font-bold text-center mb-6 mt-4">Admin Login</h2>
+            <input type="text" id="admin-user-login" placeholder="Username" class="w-full p-3 border rounded-lg mb-4">
+            <input type="password" id="admin-pass-login" placeholder="Password" class="w-full p-3 border rounded-lg mb-4">
+            <button onclick="adminLogin()" class="w-full btn-gold text-white py-3 rounded-lg font-bold">Login</button>
+        </div>
+    </div>
+
+    <div id="admin-dashboard" class="page bg-white">
+        <nav class="bg-gray-800 text-white p-4 flex justify-between items-center shadow-lg sticky top-0 z-50">
+            <div class="flex items-center">
+                <i class="fas fa-arrow-left mr-4 cursor-pointer text-xl" onclick="navigateTo('portal-selection')"></i>
+                <span class="text-xl font-bold">Admin Panel</span>
+            </div>
+            <button onclick="logout()" class="bg-red-500 px-4 py-2 rounded text-sm">Logout</button>
+        </nav>
+        <div class="flex-1 flex overflow-hidden">
+            <div class="w-64 bg-gray-100 p-4 border-r space-y-2 hidden md:block overflow-y-auto">
+                <button onclick="switchAdminTab('user-manager')" class="w-full text-left p-3 hover:bg-white rounded font-medium">User Manager </button>
+                <button onclick="switchAdminTab('control-center')" class="w-full text-left p-3 hover:bg-white rounded font-medium">Control Center </button>
+                <button onclick="switchAdminTab('monitor')" class="w-full text-left p-3 hover:bg-white rounded font-bold text-blue-600">Content Monitor </button>
+                <button onclick="switchAdminTab('exam-schedules')" class="w-full text-left p-3 hover:bg-white rounded font-medium">Exam Schedules </button>
+            </div>
+            <div class="flex-1 p-6 overflow-y-auto">
+                
+                <div id="adm-user-manager" class="space-y-6">
+                    <div class="flex justify-between items-center mb-4 border-b pb-3">
+                        <h3 class="text-2xl font-bold">Registered Users</h3>
+                        <button onclick="openAdminRegisterUserModal()" class="btn-gold text-white px-6 py-2 rounded text-sm font-bold">+ Add Teacher</button>
+                    </div>
+                    <div id="admin-student-list" class="space-y-3"></div>
+                    <div id="admin-teacher-list" class="space-y-3 mt-6"></div>
+                </div>
+
+                <div id="adm-control-center" class="hidden space-y-6">
+                    <h3 class="text-2xl font-bold mb-4 border-b pb-3">Admin Controls</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="glass-card p-6">
+                            <h4 class="font-bold mb-2">Issue Student Warning</h4>
+                            <input type="text" id="admin-warn-id" placeholder="Student ID" class="w-full p-2 border mb-2 text-sm">
+                            <textarea id="admin-warn-msg" placeholder="Warning message..." class="w-full p-2 border h-20 text-sm mb-2"></textarea>
+                            <button onclick="adminSendWarning()" class="w-full bg-red-600 text-white py-2 rounded text-sm font-bold">Send Direct Warning</button>
+                        </div>
+                        <div class="glass-card p-6">
+                            <h4 class="font-bold mb-2">Global Student Announcement</h4>
+                            <textarea id="admin-global-msg" placeholder="Announcement text for all students..." class="w-full p-2 border h-28 text-sm mb-2"></textarea>
+                            <button onclick="adminPostGlobalAnnouncement()" class="w-full btn-gold text-white py-2 rounded text-sm font-bold">Post Global Announcement</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="adm-monitor" class="hidden space-y-6">
+                    <h3 class="text-2xl font-bold mb-4 border-b pb-3 text-blue-700">Content Monitor</h3>
+                    <div id="admin-monitor-list" class="space-y-6"></div>
+                </div>
+
+                <div id="adm-exam-schedules" class="hidden space-y-6">
+                    <h3 class="text-2xl font-bold mb-4 border-b pb-3">Prepare Exam Schedules</h3>
+                    <div class="glass-card p-6 grid grid-cols-2 gap-4">
+                        <input type="date" id="adm-exam-date" class="w-full p-2 border text-sm">
+                        <input type="time" id="adm-exam-time" class="w-full p-2 border text-sm">
+                        <select id="adm-exam-type" class="p-2 border text-sm"><option value="Mid Exam">Mid Exam</option><option value="Final Exam">Final Exam</option></select>
+                        <select id="adm-exam-dept" class="p-2 border text-sm"><option value="CSE">CSE</option><option value="SE">SE</option><option value="ECE">ECE</option></select>
+                        <input type="text" id="adm-exam-course" placeholder="Course Name" class="w-full p-2 border col-span-2 text-sm">
+                        <button onclick="adminSetExamSchedule()" class="btn-gold text-white px-6 py-2 rounded col-span-2 text-sm font-bold">Save Schedule</button>
+                    </div>
+                    <div id="admin-exam-list" class="space-y-3 mt-6 max-h-[400px] overflow-y-auto"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="teacher-dashboard" class="page bg-gray-100">
+        <nav class="bg-blue-900 text-white p-4 flex justify-between items-center shadow-lg sticky top-0 z-50">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-arrow-left mr-2 cursor-pointer text-xl" onclick="navigateTo('portal-selection')"></i>
+                <div class="astu-logo !w-10 !h-10 text-xs border-2">ASTU</div>
+                <span class="font-bold" id="display-teacher-name"></span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="teacher-live-btn" onclick="teacherToggleLive()" class="bg-gray-400 text-white px-4 py-1.5 rounded-full text-xs font-bold">Go Live</button>
+                <button onclick="logout()" class="bg-red-500 px-3 py-1 rounded text-xs">Logout</button>
+            </div>
+        </nav>
+        <div class="flex-1 flex overflow-hidden">
+            <div class="w-64 bg-white p-4 border-r space-y-2 hidden md:block overflow-y-auto">
+                <button onclick="switchTeacherTab('tea-quiz-announce')" class="w-full text-left p-3 hover:bg-gray-100 rounded font-medium">Quiz Announcements </button>
+                <button onclick="switchTeacherTab('tea-materials')" class="w-full text-left p-3 hover:bg-gray-100 rounded font-medium">Upload Materials </button>
+                <button onclick="switchTeacherTab('tea-submissions')" class="w-full text-left p-3 hover:bg-gray-100 rounded font-medium">Submissions </button>
+                <button onclick="switchTeacherTab('tea-inbox')" class="w-full text-left p-3 hover:bg-gray-100 rounded font-medium relative">Inbox <span id="tea-notif-count" class="notification-badge hidden">0</span></button>
+            </div>
+            <div class="flex-1 p-6 overflow-y-auto pb-20">
+                
+                <div id="tea-quiz-announce" class="space-y-6">
+                    <h3 class="text-2xl font-bold mb-4 border-b pb-3">Announce Quizzes/Exams</h3>
+                    <div class="glass-card p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <textarea id="tea-update-msg" placeholder="Quiz/Exam announcement text..." class="w-full p-2 border col-span-2 h-24 text-sm"></textarea>
+                        <select id="tea-update-dept" class="p-2 border text-sm"><option value="CSE">CSE</option><option value="SE">SE</option><option value="ECE">ECE</option></select>
+                        <select id="tea-update-sec" class="p-2 border text-sm"><option value="A">Section A</option><option value="B">Section B</option><option value="All">All Sections</option></select>
+                        <button onclick="teacherPostUpdate()" class="btn-blue text-white py-2 rounded col-span-2 text-sm font-bold">Announce Date</button>
+                    </div>
+                </div>
+
+                <div id="tea-materials" class="hidden space-y-6">
+                    <h3 class="text-2xl font-bold mb-4 border-b pb-3">Department Study Materials </h3>
+                    <div class="glass-card p-6 space-y-4">
+                        <input type="text" id="tea-mat-title" placeholder="Material Title (e.g., SE Chapter 3)" class="w-full p-2 border text-sm">
+                        <div class="file-upload-label" onclick="document.getElementById('tea-mat-file').click()">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-blue-500 mb-2"></i><br>
+                            <span id="tea-mat-file-name" class="text-xs text-gray-500">Click to upload file</span>
+                            <input type="file" id="tea-mat-file" class="hidden" onchange="handleFileSelect(event, 'tea-mat-file-name')">
+                        </div>
+                        <button onclick="teacherUploadMaterial()" class="w-full btn-blue text-white py-2 rounded text-sm font-bold">Upload to Department Students</button>
+                    </div>
+                </div>
+
+                <div id="tea-submissions" class="hidden space-y-6">
+                    <h3 class="text-2xl font-bold mb-4 border-b pb-3">Student Submissions </h3>
+                    <div id="teacher-submission-list" class="space-y-4 max-h-[500px] overflow-y-auto"></div>
+                </div>
+
+                <div id="tea-inbox" class="hidden space-y-6">
+                    <h3 class="text-2xl font-bold mb-4 border-b pb-3">Direct Messages</h3>
+                    <div id="teacher-message-list" class="space-y-3 max-h-[500px] overflow-y-auto"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="student-dashboard" class="page bg-gray-100 pb-20">
+        <nav class="bg-green-800 text-white p-4 flex justify-between items-center shadow-lg sticky top-0 z-50">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-arrow-left mr-2 cursor-pointer text-xl" onclick="navigateTo('portal-selection')"></i>
+                <div class="astu-logo !w-10 !h-10 text-xs border-2">ASTU</div>
+                <span class="font-bold">ASTU Class Helper</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative cursor-pointer" onclick="toggleNotifications(event)">
+                    <i class="fas fa-bell text-xl"></i>
+                    <span id="notif-count" class="notification-badge hidden">0</span>
+                </div>
+                <button onclick="logout()" class="bg-red-500 px-3 py-1 rounded text-xs">Logout</button>
+            </div>
+        </nav>
+        
+        <div id="live-indicator" class="hidden bg-green-100 border-l-4 border-green-500 p-4 rounded mb-6 mt-6 mx-6 flex items-center shadow-sm pulse">
+            <i class="fas fa-satellite-dish text-green-600 text-3xl mr-4"></i>
+            <div>
+                <p class="text-green-800 font-bold">LIVE SESSION IN PROGRESS</p>
+                <p class="text-xs text-green-600">Teacher: <span id="live-teacher-name"></span> is currently active in class.</p>
+            </div>
+        </div>
+
+        <div id="exam-reminder" class="glass-card p-6 border-l-4 border-red-500 mx-6 mb-6 mt-6 hidden">
+            <h4 class="text-xl font-bold text-red-700 mb-2 flex items-center"><i class="fas fa-clock mr-2"></i> Exam Countdown</h4>
+            <div id="exam-countdown-text" class="text-red-800 font-medium text-sm"></div>
+        </div>
+
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="glass-card p-6 space-y-4">
+                <h3 class="text-xl font-bold mb-4">Post New </h3>
+                <div class="flex space-x-3">
+                    <button onclick="openHelpHubPostModal('lost')" class="flex-1 btn-gold text-white py-3 rounded-lg text-sm">Post Lost/Found ID</button>
+                    <button onclick="openHelpHubPostModal('market')" class="flex-1 btn-blue text-white py-3 rounded-lg text-sm">Marketplace Item</button>
+                </div>
+                <button onclick="openAskTeacherModal()" class="w-full btn-green text-white py-3 rounded-lg text-sm">Ask Teacher / Submit </button>
+                <button onclick="openPostInnovationModal()" class="w-full bg-blue-600 text-white py-3 rounded-lg text-sm">Post to Innovation Hub </button>
+                <div class="flex space-x-3 pt-2">
+                    <button onclick="openMotivationModal()" class="flex-1 text-center text-xs p-2 bg-gray-200 rounded">Today's Motivation </button>
+                    <button onclick="openHelpModal('CSE')" class="flex-1 text-center text-xs p-2 bg-gray-200 rounded">Environment Info  </button>
+                </div>
+            </div>
+            
+            <div class="glass-card p-6">
+                <h3 class="text-xl font-bold mb-4">Announcements & Dept Materials </h3>
+                <div class="flex space-x-2 mb-4">
+                    <button onclick="switchStudentTab('stu-announcements')" class="flex-1 text-center text-xs p-2 bg-gray-200 rounded">Updates</button>
+                    <button onclick="switchStudentTab('stu-exams')" class="flex-1 text-center text-xs p-2 bg-gray-200 rounded">Exam Schedules</button>
+                    <button onclick="switchStudentTab('stu-materials')" class="flex-1 text-center text-xs p-2 bg-gray-200 rounded">Materials</button>
+                </div>
+                <div id="stu-announcements-content" class="space-y-3 max-h-48 overflow-y-auto"></div>
+                <div id="stu-exams-content" class="hidden space-y-3 max-h-48 overflow-y-auto"></div>
+                <div id="stu-materials-content" class="hidden space-y-3 max-h-48 overflow-y-auto"></div>
+            </div>
+            
+            <div class="glass-card p-6 md:col-span-2">
+                <h3 class="text-xl font-bold mb-4">Help Hub & Marketplace </h3>
+                <div id="help-hub-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+
+            <div class="glass-card p-6 md:col-span-2">
+                <div class="flex justify-between items-center mb-4 border-b pb-3">
+                    <h3 class="text-xl font-bold">Innovation Collaboration Hub </h3>
+                    <button onclick="openInnovHistoryModal()" class="bg-gray-200 text-gray-700 px-4 py-1.5 rounded text-xs font-bold">Discussion History</button>
+                </div>
+                <div id="innovation-hub-list" class="space-y-4 max-h-[500px] overflow-y-auto"></div>
+            </div>
+
+            <div class="glass-card p-6 md:col-span-2">
+                <h3 class="text-xl font-bold mb-4">Messages & Direct Responses </h3>
+                <div id="stu-message-list" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <div id="notif-overlay" class="hidden absolute top-16 right-16 bg-white shadow-2xl rounded-lg p-4 z-50 border max-w-sm">
+            <div class="flex justify-between items-center mb-2 border-b pb-2">
+                <span class="font-bold text-sm">Notifications</span>
+                <span onclick="toggleNotifications(event)" class="text-gray-400 cursor-pointer text-sm">Close</span>
+            </div>
+            <div id="notif-list" class="space-y-2 text-xs text-gray-700 max-h-60 overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <div id="admin-add-teacher-modal" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <h3 class="text-xl font-bold mb-4">Register New Teacher</h3>
+            <input type="text" id="adm-t-name" placeholder="Full Name" class="w-full p-2 border mb-3 text-sm">
+            <input type="text" id="adm-t-id" placeholder="Teacher ID" class="w-full p-2 border mb-3 text-sm">
+            <select id="adm-t-dept" class="w-full p-2 border mb-3 text-sm"><option value="CSE">CSE</option><option value="SE">SE</option><option value="ECE">ECE</option></select>
+            <input type="text" id="adm-t-course" placeholder="Assigned Course" class="w-full p-2 border mb-3 text-sm">
+            <input type="password" id="adm-t-pass" placeholder="Password" class="w-full p-2 border mb-3 text-sm">
+            <div class="flex justify-end space-x-2 pt-4 border-t">
+                <button onclick="closeModals()" class="text-gray-500 px-4 py-2 text-sm">Cancel</button>
+                <button onclick="adminRegisterTeacher()" class="btn-gold text-white px-6 py-2 rounded text-sm font-bold">Register</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="ask-teacher-modal" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <h3 class="text-xl font-bold mb-4">Ask Teacher / Submit</h3>
+            <select id="ask-teacher-select" class="w-full p-2 border rounded mb-3 text-sm"></select>
+            <textarea id="ask-question-text" placeholder="Your question or message..." class="w-full p-2 border rounded h-24 mb-3 text-sm"></textarea>
+            <div class="mb-3">
+                <label class="block text-xs text-gray-500 mb-1">Optional File </label>
+                <input type="file" id="ask-file" class="w-full text-xs text-gray-500">
+            </div>
+            <div class="flex justify-end space-x-2 pt-4 border-t">
+                <button onclick="closeModals()" class="text-gray-500 px-4 py-2 text-sm">Cancel</button>
+                <button onclick="submitAskTeacher()" class="btn-green text-white px-6 py-2 rounded text-sm font-bold">Submit to Teacher</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="helphub-post-modal" class="modal-overlay">
+        <div class="modal-content glass-card overflow-y-auto max-h-[90vh]">
+            <h3 id="helphub-modal-title" class="text-xl font-bold mb-4">Post Item</h3>
+            <input type="text" id="hh-title" placeholder="Item Name / Name on ID" class="w-full p-2 border mb-2 rounded text-sm">
+            <input type="text" id="hh-desc-extra" placeholder="Extra details (ID No / Price / Desired Exchange)" class="w-full p-2 border mb-2 rounded text-sm">
+            <input type="text" id="hh-contact" placeholder="Phone Number or TG Username" class="w-full p-2 border mb-3 rounded text-sm">
+            
+            <div class="my-3">
+                <label class="block text-xs text-gray-500 mb-1">Picture (Optional)</label>
+                <input type="file" id="helphub-file" class="w-full text-xs text-gray-500" accept="image/*">
+            </div>
+            <div class="flex justify-end space-x-2 pt-4 border-t">
+                <button onclick="closeModals()" class="text-gray-500 px-4 py-2 text-sm">Cancel</button>
+                <button onclick="submitHelpHubPost()" class="btn-gold text-white px-6 py-2 rounded text-sm font-bold">Post Immediately</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="innovation-post-modal" class="modal-overlay">
+        <div class="modal-content glass-card overflow-y-auto max-h-[90vh]">
+            <h3 class="text-xl font-bold mb-4">Share Innovation Idea</h3>
+            <input type="text" id="innov-title" placeholder="Project Title" class="w-full p-2 border rounded text-sm mb-3">
+            <textarea id="innov-desc" placeholder="Describe your idea or innovation..." class="w-full p-2 border rounded h-28 text-sm mb-3"></textarea>
+            <input type="text" id="innov-skills" placeholder="Skills needed (e.g., React, Java)" class="w-full p-2 border rounded text-sm mb-3">
+            <div class="flex justify-end space-x-2 pt-4 border-t">
+                <button onclick="closeModals()" class="text-gray-500 px-4 py-2 text-sm">Cancel</button>
+                <button onclick="submitInnovationPost()" class="bg-blue-600 text-white px-6 py-2 rounded text-sm font-bold">Publish to Hub</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="innovation-history-modal" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <h3 class="text-xl font-bold mb-4">Discussion History</h3>
+            <div id="innovation-history-list" class="space-y-3 max-h-96 overflow-y-auto"></div>
+            <button onclick="closeModals()" class="text-gray-500 mt-6 block w-full text-sm">Close</button>
+        </div>
+    </div>
+
+    <div id="motivation-modal" class="modal-overlay">
+        <div class="modal-content glass-card text-center p-12">
+            <i class="fas fa-quote-left text-astu-gold text-4xl mb-4"></i>
+            <p id="motivation-text" class="text-xl text-gray-800 font-medium"></p>
+            <i class="fas fa-quote-right text-astu-gold text-4xl mt-4 mb-6"></i>
+            <button onclick="closeModals()" class="text-gray-500 mt-6 block w-full text-sm">Close</button>
+        </div>
+    </div>
+
+    <div id="help-modal" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <h3 class="text-xl font-bold mb-4">ASTU Environment Info</h3>
+            <div id="help-content" class="text-sm text-gray-700 space-y-2"></div>
+            <button onclick="closeModals()" class="text-gray-500 mt-6 block w-full text-sm">Close</button>
+        </div>
+    </div>
+
+    <div id="peer-message-modal" class="modal-overlay">
+        <div class="modal-content glass-card">
+            <h3 class="text-xl font-bold mb-2">Message Peer</h3>
+            <p class="text-xs text-gray-600 mb-1">Regarding post: <strong id="peer-msg-post-title"></strong></p>
+            <p class="text-xs text-blue-600 mb-3 font-bold">Contact Info: <span id="peer-contact-display"></span></p>
+            <textarea id="peer-msg-text" placeholder="Type message..." class="w-full p-2 border rounded h-28 text-sm mb-3"></textarea>
+            <div class="flex justify-end space-x-2 pt-4 border-t">
+                <button onclick="closeModals()" class="text-gray-500 px-4 py-2 text-sm">Cancel</button>
+                <button onclick="submitPeerMessage()" class="btn-blue text-white px-6 py-2 rounded text-sm font-bold">Send Direct</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-10 right-10 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-2xl hidden z-[110]"></div>
+
+    <script>
+        // Data Structures & Persistence 
+        let db = {
+            students: JSON.parse(localStorage.getItem('astu_students')) || [{name:'CSE Stud', id:'cse', dept:'CSE', section:'A', pass:'1234'}],
+            teachers: JSON.parse(localStorage.getItem('astu_teachers')) || [{name:'CSE Teacher', id:'cse', dept:'CSE', pass:'1234'}], 
+            admin: JSON.parse(localStorage.getItem('astu_admin')) || { user: 'user', pass: '1234' },
+            announcements: JSON.parse(localStorage.getItem('astu_announcements')) || [],
+            materials: JSON.parse(localStorage.getItem('astu_materials')) || [], 
+            exams: JSON.parse(localStorage.getItem('astu_exams')) || [], 
+            helpposts: JSON.parse(localStorage.getItem('astu_helpposts')) || [], 
+            submissions: JSON.parse(localStorage.getItem('astu_submissions')) || [], 
+            innovations: JSON.parse(localStorage.getItem('astu_innovations')) || [], 
+            innovHistory: JSON.parse(localStorage.getItem('astu_innov_history')) || [],
+            messages: JSON.parse(localStorage.getItem('astu_messages')) || [], 
+            liveStatus: JSON.parse(localStorage.getItem('astu_live')) || false
+        };
+
+        const motivations = ["Believe you can and you're halfway there.", "Your time is limited, don't waste it living someone else's life.", "The best way to predict the future is to invent it.", "Strive for progress, not perfection.", "Every day is a second chance."];
+
+        const envHelp = { "CSE": "Block 505 (Software Labs), Block 508 (Networking). The library is open until 10 PM. Student Clinic is in Block 101." };
+
+        let currentUser = null;
+        let userRole = null;
+        let currentPeerMsgTarget = null; 
+        let currentHelpType = 'lost';
+
+        function saveData() {
+            try {
+                localStorage.setItem('astu_students', JSON.stringify(db.students));
+                localStorage.setItem('astu_teachers', JSON.stringify(db.teachers));
+                localStorage.setItem('astu_admin', JSON.stringify(db.admin));
+                localStorage.setItem('astu_announcements', JSON.stringify(db.announcements));
+                localStorage.setItem('astu_materials', JSON.stringify(db.materials));
+                localStorage.setItem('astu_exams', JSON.stringify(db.exams));
+                localStorage.setItem('astu_helpposts', JSON.stringify(db.helpposts));
+                localStorage.setItem('astu_submissions', JSON.stringify(db.submissions));
+                localStorage.setItem('astu_innovations', JSON.stringify(db.innovations));
+                localStorage.setItem('astu_innov_history', JSON.stringify(db.innovHistory));
+                localStorage.setItem('astu_messages', JSON.stringify(db.messages));
+                localStorage.setItem('astu_live', JSON.stringify(db.liveStatus));
+            } catch (e) {
+                showToast("Data storage limit reached. File uploads might be large.");
+            }
+        }
+
+        // Common UI & Navigation
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            closeModals();
+            if(pageId === 'student-dashboard') loadStudentDashboard();
+            if(pageId === 'teacher-dashboard') loadTeacherDashboard();
+            if(pageId === 'admin-dashboard') loadAdminDashboard();
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        function logout() { currentUser = null; userRole = null; navigateTo('portal-selection'); }
+        function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active')); }
+        
+        function toggleNotifications(event) {
+            event.stopPropagation();
+            const overlay = document.getElementById('notif-overlay');
+            overlay.classList.toggle('hidden');
+            if(!overlay.classList.contains('hidden')) renderNotifList();
+        }
+        function hideNotifications(event) {
+            const overlay = document.getElementById('notif-overlay');
+            if(!overlay.classList.contains('hidden') && event.target !== document.querySelector('#notif-count')) overlay.classList.add('hidden');
+        }
+        function renderNotifList() {
+            const list = document.getElementById('notif-list');
+            const newMsgs = db.messages.filter(m => m.toRole === userRole && m.to === currentUser.id && !m.read).reverse();
+            list.innerHTML = newMsgs.map(m => `
+                <div class="p-2 border-b"><p>New message from ${m.from}: ${m.body.substring(0,30)}...</p></div>
+            `).join('') || "No new messages.";
+        }
+
+        function handleFileSelect(event, labelId) {
+            const file = event.target.files[0];
+            if(file) document.getElementById(labelId).innerText = file.name;
+        }
+
+        // --- AUTH ---
+        function studentRegister() {
+            const name = document.getElementById('reg-name').value;
+            const id = document.getElementById('reg-id').value;
+            const dept = document.getElementById('reg-dept').value;
+            const section = document.getElementById('reg-section').value;
+            const pass = document.getElementById('reg-pass').value;
+            if(!name || !id || !dept || !section || !pass) return showToast("Fill all fields");
+            if(db.students.some(s => s.id === id)) return showToast("ID already exists");
+            db.students.push({name, id, dept, section, pass}); saveData();
+            showToast("Registered!"); navigateTo('student-login');
+        }
+        function studentLogin() {
+            const id = document.getElementById('stu-id-login').value;
+            const pass = document.getElementById('stu-pass-login').value;
+            const u = db.students.find(s => s.id === id && s.pass === pass);
+            if(u) { currentUser = u; userRole = 'student'; navigateTo('student-dashboard'); }
+            else showToast("Invalid Credentials");
+        }
+        function teacherLogin() { 
+            const id = document.getElementById('teacher-id-login').value;
+            const pass = document.getElementById('teacher-pass-login').value;
+            const u = db.teachers.find(t => t.id === id && t.pass === pass);
+            if(u) { currentUser = u; userRole = 'teacher'; navigateTo('teacher-dashboard'); }
+            else showToast("Invalid Credentials");
+        }
+        function adminLogin() {
+            const u = document.getElementById('admin-user-login').value;
+            const p = document.getElementById('admin-pass-login').value;
+            if(u === db.admin.user && p === db.admin.pass) { currentUser = {id:'admin'}; userRole = 'admin'; navigateTo('admin-dashboard'); }
+            else showToast("Invalid Credentials");
+        }
+
+        // --- ADMIN ---
+        function loadAdminDashboard() {
+            switchAdminTab('user-manager');
+        }
+        function switchAdminTab(t) {
+            ['user-manager','control-center','monitor','exam-schedules'].forEach(id => document.getElementById('adm-'+id).classList.add('hidden'));
+            document.getElementById('adm-'+t).classList.remove('hidden');
+            if(t==='user-manager') renderAdminUserLists();
+            if(t==='monitor') renderAdminMonitor();
+            if(t==='exam-schedules') renderAdminExamList();
+        }
+        
+        function renderAdminUserLists() { 
+            const stuContainer = document.getElementById('admin-student-list');
+            stuContainer.innerHTML = '<h4 class="font-bold mb-3 text-green-700">All Students</h4>';
+            stuContainer.innerHTML += db.students.map(s => `
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded text-xs">
+                    <span>${s.name} (${s.id}) - Dept: ${s.dept}</span>
+                    <div class="space-x-2">
+                        <span>Pass: <strong class="text-blue-600">${s.pass}</strong></span>
+                        <button onclick="adminDeleteUser('student', '${s.id}')" class="text-red-500">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+
+            const teaContainer = document.getElementById('admin-teacher-list');
+            teaContainer.innerHTML = '<h4 class="font-bold mb-3 text-blue-700">All Teachers</h4>';
+            teaContainer.innerHTML += db.teachers.map(t => `
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded text-xs">
+                    <span>${t.name} (${t.id}) - Dept: ${t.dept}</span>
+                    <div class="space-x-2">
+                        <span>Pass: <strong class="text-blue-600">${t.pass}</strong></span>
+                        <button onclick="adminDeleteUser('teacher', '${t.id}')" class="text-red-500">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function adminDeleteUser(role, id) {
+            if(!confirm(`Delete this ${role} permanently?`)) return;
+            if(role === 'student') db.students = db.students.filter(s => s.id !== id);
+            else db.teachers = db.teachers.filter(t => t.id !== id);
+            saveData(); renderAdminUserLists();
+        }
+        function openAdminRegisterUserModal() { document.getElementById('admin-add-teacher-modal').classList.add('active'); }
+        function adminRegisterTeacher() { 
+            const name = document.getElementById('adm-t-name').value;
+            const id = document.getElementById('adm-t-id').value;
+            const dept = document.getElementById('adm-t-dept').value;
+            const course = document.getElementById('adm-t-course').value;
+            const pass = document.getElementById('adm-t-pass').value;
+            if(!name || !id || !course || !pass) return showToast("Fill all fields");
+            db.teachers.push({name, id, dept, course, pass}); saveData();
+            renderAdminUserLists(); closeModals(); showToast("Teacher Registered!");
+        }
+
+        function adminSendWarning() { 
+            const id = document.getElementById('admin-warn-id').value;
+            const msg = document.getElementById('admin-warn-msg').value;
+            if(!id || !msg) return showToast("Enter ID and Message");
+            const student = db.students.find(s => s.id === id);
+            if(!student) return showToast("Student not found");
+            db.messages.push({ id: Date.now(), from:'ADMIN (Warning)', toRole:'student', to: id, toName: student.name, subject:'Direct Warning', body: msg, date: new Date().toLocaleDateString(), read: false });
+            saveData(); showToast("Warning issued.");
+        }
+        function adminPostGlobalAnnouncement() {
+            const msg = document.getElementById('admin-global-msg').value;
+            if(!msg) return;
+            db.announcements.push({ id: Date.now(), teacher: 'Admin', dept: 'ALL', message: msg, date: new Date().toLocaleDateString() });
+            saveData(); showToast("Announcement Posted to All.");
+        }
+
+        // --- ADMIN MONITOR ---
+        function renderAdminMonitor() {
+            const container = document.getElementById('admin-monitor-list');
+            let html = '';
+
+            // Monitor Help Hub (IDs & Marketplace)
+            html += `<div class="glass-card p-4"><h4 class="font-bold mb-3 text-yellow-700">ID Lost/Found & Marketplace</h4>`;
+            html += db.helpposts.map(p => `
+                <div class="flex justify-between items-center p-2 border-b text-xs">
+                    <span>[${p.type.toUpperCase()}] ${p.title} - ${p.extraDesc}</span>
+                    <button onclick="monitorDeleteContent('help', ${p.id})" class="text-red-500 bg-red-50 px-2 py-1 rounded">Delete</button>
+                </div>
+            `).join('') || '<p class="text-xs text-gray-500">No public listings.</p>';
+            html += `</div>`;
+
+            // Monitor Innovation Hub
+            html += `<div class="glass-card p-4 mt-6"><h4 class="font-bold mb-3 text-indigo-700">Innovation Hub Topics</h4>`;
+            html += db.innovations.map(p => `
+                <div class="flex justify-between items-center p-2 border-b text-xs">
+                    <span>${p.title} - posted by ${p.postedByName}</span>
+                    <button onclick="monitorDeleteContent('innov', ${p.id})" class="text-red-500 bg-red-50 px-2 py-1 rounded">Delete</button>
+                </div>
+            `).join('') || '<p class="text-xs text-gray-500">No active discussions.</p>';
+            html += `</div>`;
+
+            container.innerHTML = html;
+        }
+
+        function monitorDeleteContent(category, id) {
+            if(!confirm("Delete this content permanently?")) return;
+            if(category === 'help') db.helpposts = db.helpposts.filter(p => p.id !== id);
+            else if(category === 'innov') db.innovations = db.innovations.filter(p => p.id !== id);
+            saveData(); renderAdminMonitor(); showToast("Content deleted.");
+        }
+
+        function adminSetExamSchedule() { 
+            const date = document.getElementById('adm-exam-date').value;
+            const time = document.getElementById('adm-exam-time').value;
+            const type = document.getElementById('adm-exam-type').value;
+            const dept = document.getElementById('adm-exam-dept').value;
+            const course = document.getElementById('adm-exam-course').value;
+            if(!date || !time || !course) return;
+            
+            db.exams.push({id: Date.now(), date, time, type, dept, course});
+            // Send messaging notification
+            db.messages.push({ id: Date.now(), from:'SYSTEM', toRole:'student', toDept: dept, subject:'Exam Schedule Updated', body:`The ${type} for ${course} is scheduled on ${date}. Check the Exams tab.`, date: new Date().toLocaleDateString(), read: false });
+            
+            saveData(); renderAdminExamList(); showToast("Exam Scheduled.");
+        }
+        function renderAdminExamList() {
+            const list = document.getElementById('admin-exam-list');
+            list.innerHTML = db.exams.map(e => `
+                <div class="glass-card p-3 flex justify-between items-center text-xs">
+                    <span>${e.date} at ${e.time} (${e.dept}): ${e.course} - ${e.type}</span>
+                    <button onclick="adminDeleteExam(${e.id})" class="text-red-500">Clear Schedule </button>
+                </div>
+            `).join('');
+        }
+        function adminDeleteExam(id) {
+            db.exams = db.exams.filter(e => e.id !== id);
+            saveData(); renderAdminExamList();
+        }
+
+        // --- TEACHER ---
+        function loadTeacherDashboard() {
+            document.getElementById('display-teacher-name').innerText = currentUser.name;
+            updateTeacherLiveBtnUI();
+            switchTeacherTab('tea-quiz-announce');
+            renderTeacherInbox();
+        }
+        function switchTeacherTab(t) {
+            ['tea-quiz-announce','tea-materials','tea-submissions','tea-inbox'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById(t).classList.remove('hidden');
+            if(t==='tea-submissions') renderTeacherSubmissionList();
+            if(t==='tea-inbox') renderTeacherInbox();
+        }
+
+        function teacherToggleLive() { 
+            if(db.liveStatus === currentUser.id) db.liveStatus = false;
+            else db.liveStatus = currentUser.id;
+            saveData(); updateTeacherLiveBtnUI();
+        }
+        function updateTeacherLiveBtnUI() {
+            const btn = document.getElementById('teacher-live-btn');
+            if(db.liveStatus === currentUser.id) { btn.innerText = "End Live"; btn.className = "bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-bold pulse"; }
+            else { btn.innerText = "Go Live"; btn.className = "bg-gray-400 text-white px-4 py-1.5 rounded-full text-xs font-bold"; }
+        }
+
+        function teacherPostUpdate() { 
+            const msg = document.getElementById('tea-update-msg').value;
+            const dept = document.getElementById('tea-update-dept').value;
+            const sec = document.getElementById('tea-update-sec').value;
+            if(!msg) return;
+            db.messages.push({ id: Date.now(), from:`${currentUser.name}`, fromRole:'teacher', toRole:'student', toDept: dept, toSec: sec, subject:'Quiz/Exam Dates', body: msg, date: new Date().toLocaleDateString(), read: false });
+            saveData(); showToast("Notification Sent!");
+        }
+
+        function teacherUploadMaterial() { 
+            const title = document.getElementById('tea-mat-title').value;
+            const fileInput = document.getElementById('tea-mat-file');
+            if(!title || !fileInput.files[0]) return showToast("Fill title and select file.");
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                db.materials.push({ id: Date.now(), title, teacher: currentUser.name, dept: currentUser.dept, fileData: reader.result, fileName: file.name, date: new Date().toLocaleDateString() });
+                saveData(); showToast("Shared!");
+            }
+            reader.readAsDataURL(file); 
+        }
+
+        function renderTeacherSubmissionList() { 
+            const container = document.getElementById('teacher-submission-list');
+            const filtered = db.submissions.filter(s => s.teacherId === currentUser.id);
+            container.innerHTML = filtered.reverse().map(s => `
+                <div class="glass-card p-4 space-y-2 text-xs">
+                    <p>${s.date} | From: ${s.studentName} (${s.studentId})</p>
+                    <p class="font-medium">Q: ${s.question}</p>
+                    ${s.fileData ? `<button onclick="downloadStudentSubmission('${s.fileData}', '${s.fileName}')" class="text-blue-600">📥 View File</button>` : ''}
+                    <textarea id="resp-${s.id}" placeholder="Response..." class="w-full p-1.5 border text-xs h-12"></textarea>
+                    <button onclick="teacherRespondSubmission(${s.id}, '${s.studentId}', '${s.studentName}')" class="bg-blue-600 text-white px-4 py-1 rounded text-xs">Reply</button>
+                </div>
+            `).join('') || "No submissions.";
+        }
+        function downloadStudentSubmission(fileData, fileName) {
+            const link = document.createElement('a'); link.href = fileData; link.download = fileName; link.click();
+        }
+        function teacherRespondSubmission(subId, stuId, stuName) {
+            const resp = document.getElementById(`resp-${subId}`).value;
+            if(!resp) return;
+            db.messages.push({ id: Date.now(), from:`${currentUser.name}`, toRole:'student', to: stuId, toName: stuName, subject:'Teacher Response', body: resp, date: new Date().toLocaleDateString(), read: false });
+            saveData(); showToast("Sent.");
+        }
+        function renderTeacherInbox() {
+            const list = document.getElementById('teacher-message-list');
+            const newMsgs = db.messages.filter(m => m.toRole === 'teacher' && m.to === currentUser.id).reverse();
+            document.getElementById('tea-notif-count').innerText = newMsgs.length;
+            document.getElementById('tea-notif-count').classList.toggle('hidden', newMsgs.length===0);
+            list.innerHTML = newMsgs.map(m => `<div class="p-3 bg-gray-50 border rounded text-xs"><p>${m.from}: ${m.body}</p></div>`).join('') || "Inbox empty.";
+        }
+
+        // --- STUDENT ---
+        function loadStudentDashboard() {
+            updateLiveIndicatorUI();
+            updateExamReminderUI();
+            renderStudentHelpHub();
+            renderInnovationHubList();
+            renderMessagesList();
+            renderUpdatesList();
+            updateNotifBadge();
+            closeModals();
+        }
+        function switchStudentTab(t) {
+            ['stu-announcements','stu-exams','stu-materials'].forEach(id => document.getElementById(id+'-content').classList.add('hidden'));
+            document.getElementById(t+'-content').classList.remove('hidden');
+            if(t==='stu-materials') renderDeptMaterialsList();
+            if(t==='stu-exams') renderDeptExamsList();
+        }
+
+        function updateLiveIndicatorUI() { 
+            const indicator = document.getElementById('live-indicator');
+            if(db.liveStatus) {
+                const teacher = db.teachers.find(t => t.id === db.liveStatus);
+                if(teacher && teacher.dept === currentUser.dept) {
+                    document.getElementById('live-teacher-name').innerText = teacher.name;
+                    indicator.classList.remove('hidden'); return;
+                }
+            }
+            indicator.classList.add('hidden');
+        }
+
+        function renderStudentHelpHub() { 
+            const list = document.getElementById('help-hub-list');
+            list.innerHTML = db.helpposts.slice().reverse().map(p => {
+                let color = p.type === 'lost' ? 'border-astu-gold' : 'border-astu-blue';
+                return `
+                    <div class="glass-card overflow-hidden shadow-sm space-y-2 relative border-l-4 ${color}">
+                        ${p.fileData ? `<img src="${p.fileData}" class="w-full h-32 object-cover">` : ''}
+                        <div class="p-4 pt-2">
+                            <span class="text-[10px] font-bold px-2 py-1 rounded bg-gray-100">${p.type.toUpperCase()}</span>
+                            <h4 class="font-bold mt-1">${p.title}</h4>
+                            <p class="text-xs text-gray-700">${p.extraDesc}</p>
+                            <p class="text-[10px] text-blue-600 font-bold">Contact: ${p.contact}</p>
+                            ${p.studentId !== currentUser.id ? 
+                                `<button onclick="openPeerMessageModal(${p.id}, '${p.studentId}', '${p.postedByName}', '${escape(p.title)}', '${p.contact}')" class="mt-2 w-full bg-blue-50 text-blue-800 text-[10px] py-1 rounded border">Message </button>` : 
+                                `<button onclick="clearHelpHubPost(${p.id})" class="mt-2 w-full bg-red-50 text-red-600 text-[10px] py-1 rounded border">Clear Post</button>`
+                            }
+                        </div>
+                    </div>
+                `
+            }).join('');
+        }
+        function openHelpHubPostModal(type) { 
+            currentHelpType = type;
+            document.getElementById('helphub-modal-title').innerText = type==='lost' ? 'Post Lost/Found ID' : 'Post Marketplace Item';
+            document.getElementById('hh-desc-extra').placeholder = type==='lost' ? 'ID Number' : 'Price / Desired Exchange';
+            document.getElementById('helphub-post-modal').classList.add('active');
+        }
+        function submitHelpHubPost() { 
+            const title = document.getElementById('hh-title').value;
+            const extraDesc = document.getElementById('hh-desc-extra').value;
+            const contact = document.getElementById('hh-contact').value;
+            const fileInput = document.getElementById('helphub-file');
+            
+            if(!title || !contact) return alert("Title and Contact are required.");
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            const savePost = (imgData = null) => {
+                db.helpposts.push({ id: Date.now(), type: currentHelpType, title, extraDesc, contact, studentId: currentUser.id, postedByName: currentUser.name, fileData: imgData, date: new Date().toLocaleDateString() });
+                // Simulate message direct send (only for FOUND type)
+                if(currentHelpType === 'lost') {
+                    db.messages.push({ id: Date.now(), from:'SYSTEM', toRole:'student', subject:'New Found ID Post', body:`A found ID for '${title}' was posted by ${currentUser.name}. Check Help Hub.`, date: new Date().toLocaleDateString(), read: false });
+                }
+                saveData(); renderStudentHelpHub(); closeModals();
+                // Clear form
+                document.getElementById('hh-title').value=''; document.getElementById('hh-desc-extra').value=''; document.getElementById('hh-contact').value=''; fileInput.value='';
+            }
+
+            if(file) { reader.onloadend = () => savePost(reader.result); reader.readAsDataURL(file); }
+            else savePost();
+        }
+        function clearHelpHubPost(id) {
+            db.helpposts = db.helpposts.filter(p => p.id !== id);
+            saveData(); renderStudentHelpHub(); showToast("Post removed.");
+        }
+
+        function openPeerMessageModal(postId, authId, authName, title, contact) {
+            currentPeerMsgTarget = { authId, authName, postTitle: unescape(title) };
+            document.getElementById('peer-msg-post-title').innerText = unescape(title);
+            document.getElementById('peer-contact-display').innerText = contact;
+            document.getElementById('peer-message-modal').classList.add('active');
+        }
+        function submitPeerMessage() {
+            const body = document.getElementById('peer-msg-text').value;
+            if(!body) return;
+            db.messages.push({ id: Date.now(), from:currentUser.name, fromRole:'student', toRole:'student', to: currentPeerMsgTarget.authId, toName: currentPeerMsgTarget.authName, subject:`Re: ${currentPeerMsgTarget.postTitle}`, body, date: new Date().toLocaleDateString(), read: false });
+            saveData(); showToast("Sent directly to peer."); closeModals();
+        }
+
+        // --- INNOVATION HUB (Logic 1) ---
+        function renderInnovationHubList() {
+            const container = document.getElementById('innovation-hub-list');
+            container.innerHTML = db.innovations.slice().reverse().map(p => `
+                <div class="bg-gray-50 border rounded-lg p-4 space-y-2 text-xs relative">
+                    <div class="flex justify-between">
+                        <h4 class="font-bold text-sm">${p.title}</h4>
+                        ${p.studentId === currentUser.id ? `<button onclick="endInnovationDiscussion(${p.id})" class="text-red-500 font-bold">End Discussion</button>` : ''}
+                    </div>
+                    <p class="text-gray-700">${p.desc}</p>
+                    <div class="innov-comments-list space-y-1 mt-2 max-h-40 overflow-y-auto bg-white p-2 rounded border">
+                        ${p.comments.map(c => `<div class="p-1 border-b"><strong>${c.author}:</strong> ${c.text}</div>`).join('') || 'No comments.'}
+                    </div>
+                    <div class="flex mt-2 space-x-2">
+                        <input type="text" id="innov-comm-${p.id}" placeholder="Type message..." class="flex-1 p-1 border text-xs">
+                        <button onclick="submitInnovationComment(${p.id})" class="bg-green-600 text-white px-3 py-1 rounded">Send</button>
+                    </div>
+                </div>
+            `).join('') || "No active discussions.";
+        }
+        function openPostInnovationModal() { document.getElementById('innovation-post-modal').classList.add('active'); }
+        function submitInnovationPost() {
+            const title = document.getElementById('innov-title').value;
+            const desc = document.getElementById('innov-desc').value;
+            if(!title || !desc) return;
+            db.innovations.push({ id: Date.now(), title, desc, studentId: currentUser.id, postedByName: currentUser.name, comments: [], date: new Date().toLocaleDateString() });
+            saveData(); renderInnovationHubList(); closeModals();
+        }
+        function submitInnovationComment(innovId) {
+            const text = document.getElementById(`innov-comm-${innovId}`).value;
+            if(!text) return;
+            const innov = db.innovations.find(p => p.id === innovId);
+            innov.comments.push({ author: currentUser.name, text });
+            saveData(); renderInnovationHubList();
+        }
+        function endInnovationDiscussion(id) {
+            const innov = db.innovations.find(p => p.id === id);
+            db.innovHistory.push({...innov, endDate: new Date().toLocaleDateString()});
+            db.innovations = db.innovations.filter(p => p.id !== id);
+            saveData(); renderInnovationHubList(); showToast("Chat cleared.");
+        }
+        function openInnovHistoryModal() {
+            const list = document.getElementById('innovation-history-list');
+            list.innerHTML = db.innovHistory.map(h => `
+                <div class="p-3 bg-gray-50 rounded border text-xs">
+                    <p class="font-bold">${h.title} (Ended: ${h.endDate})</p>
+                    <div class="mt-2 text-[10px] text-gray-500">
+                        ${h.comments.map(c => `<div>${c.author}: ${c.text}</div>`).join('')}
+                    </div>
+                </div>
+            `).join('') || "No history.";
+            document.getElementById('innovation-history-modal').classList.add('active');
+        }
+
+        // Other Core Logic
+        function openAskTeacherModal() {
+            document.getElementById('ask-teacher-select').innerHTML = db.teachers.map(t => `<option value="${t.id}">${t.name} (${t.course})</option>`).join('');
+            document.getElementById('ask-teacher-modal').classList.add('active');
+        }
+        function submitAskTeacher() {
+            const teaId = document.getElementById('ask-teacher-select').value;
+            const question = document.getElementById('ask-question-text').value;
+            if(!question) return;
+            db.submissions.push({ id: Date.now(), teacherId: teaId, question, studentId: currentUser.id, studentName: currentUser.name, studentDept: currentUser.dept, studentSection: currentUser.section, date: new Date().toLocaleDateString() });
+            saveData(); showToast("Submitted."); closeModals();
+        }
+        function renderDeptMaterialsList() {
+            const list = document.getElementById('stu-materials-content');
+            const filtered = db.materials.filter(m => m.dept === currentUser.dept);
+            list.innerHTML = filtered.reverse().map(m => `
+                <div class="glass-card p-3 flex justify-between items-center text-xs">
+                    <div><strong>${m.title}</strong></div>
+                    <button onclick="downloadMat('${m.fileData}', '${m.fileName}')" class="text-blue-600">📥 Download</button>
+                </div>
+            `).join('') || "No materials.";
+        }
+        function downloadMat(fileData, fileName) {
+            const link = document.createElement('a'); link.href = fileData; link.download = fileName; link.click();
+        }
+        function renderDeptExamsList() {
+            const list = document.getElementById('stu-exams-content');
+            const filtered = db.exams.filter(e => e.dept === currentUser.dept);
+            list.innerHTML = filtered.reverse().map(e => `<div class="glass-card p-3 text-xs"><strong>${e.course}</strong>: ${e.date} (${e.type})</div>`).join('');
+        }
+
+        // --- EXAM COUNTDOWN ---
+        let countdownInterval;
+        function updateExamReminderUI() {
+            const reminderBox = document.getElementById('exam-reminder');
+            const display = document.getElementById('exam-countdown-text');
+            const now = new Date().getTime();
+            
+            // Get upcoming exams for same department, sorted by nearest time
+            const upcoming = db.exams.filter(e => e.dept === currentUser.dept && new Date(e.date + ' ' + e.time).getTime() > now)
+                                     .sort((a,b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time));
+
+            if(countdownInterval) clearInterval(countdownInterval);
+
+            if(upcoming.length === 0) {
+                reminderBox.classList.add('hidden');
+                return;
+            }
+
+            reminderBox.classList.remove('hidden');
+            const next = upcoming[0];
+            const examTime = new Date(next.date + ' ' + next.time).getTime();
+            
+            const updateCount = () => {
+                const currentTime = new Date().getTime();
+                const diff = examTime - currentTime;
+
+                if(diff <= 0) {
+                    display.innerText = `${next.course}: In progress or just finished.`;
+                    clearInterval(countdownInterval);
+                    return;
+                }
+
+                const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+                if(d === 0) display.innerText = `${next.course}: Today in ${h}h ${m}m.`;
+                else if(d === 1) display.innerText = `${next.course}: Tomorrow (${h}h ${m}m remaining).`;
+                else display.innerText = `${next.course}: In ${d} days.`;
+            }
+
+            updateCount();
+            countdownInterval = setInterval(updateCount, 60000); // Update every minute
+        }
+
+        function openMotivationModal() {
+            document.getElementById('motivation-text').innerText = motivations[Math.floor(Math.random()*motivations.length)];
+            document.getElementById('motivation-modal').classList.add('active');
+        }
+        function openHelpModal(dept) {
+            document.getElementById('help-content').innerText = envHelp[dept] || "General ASTU Info";
+            document.getElementById('help-modal').classList.add('active');
+        }
+        function renderUpdatesList() {
+            const list = document.getElementById('stu-announcements-content');
+            const filtered = db.announcements.filter(a => a.dept === 'ALL' || a.dept === currentUser.dept);
+            list.innerHTML = filtered.reverse().map(a => `<div class="p-2 border-b text-xs">${a.message}</div>`).join('');
+        }
+        function renderMessagesList() {
+            const list = document.getElementById('stu-message-list');
+            const myMsgs = db.messages.filter(m => m.toRole === 'student' && m.to === currentUser.id).reverse();
+            list.innerHTML = myMsgs.map(m => `<div class="glass-card p-3 text-xs shadow-sm"><p class="font-semibold text-astu-blue">${m.subject}</p><p>${m.body}</p></div>`).join('') || "No messages.";
+        }
+        function updateNotifBadge() {
+            const count = db.messages.filter(m => m.toRole === userRole && m.to === currentUser.id && !m.read).length;
+            document.getElementById('notif-count').innerText = count;
+            document.getElementById('notif-count').classList.toggle('hidden', count === 0);
+        }
+function toggleNightMode() {
+            const body = document.body;
+            const icon = document.getElementById('night-icon');
+            const btn = document.getElementById('night-mode-toggle');
+            
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+                btn.classList.replace('bg-gray-800', 'bg-yellow-500');
+                localStorage.setItem('astu_night_mode', 'enabled');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+                btn.classList.replace('bg-yellow-500', 'bg-gray-800');
+                localStorage.setItem('astu_night_mode', 'disabled');
+            }
+        }
+
+        // Check for saved user preference on page load
+        if (localStorage.getItem('astu_night_mode') === 'enabled') {
+            toggleNightMode();
+        }
+    </script>
+</body>
+</html>
